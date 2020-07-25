@@ -6,10 +6,14 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "@tensorflow/tfjs": "^2.0.1",
+    "@tensorflow/tfjs-node": "^2.0.1",
+    "@tensorflow/tfjs-node-gpu": "^2.0.1",
     "canvas": "^2.6.1",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "express": "~4.16.1",
+    "file-system": "^2.2.2",
     "get-image-data": "^5.0.0",
     "handtrackjs": "0.0.13",
     "http-errors": "~1.6.3",
