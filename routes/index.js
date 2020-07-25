@@ -1,6 +1,6 @@
 var express = require('express');
 var router = express.Router();
-var handTrack = require('handtrackjs');
+var handTrack = require('../handtrackjs/src/index.js');
 var image = require('get-image-data')
 const { Image, createCanvas } = require('canvas');
 let model;
@@ -33,7 +33,6 @@ router.get('/gesture', function(req, res, next) {
       var gray = (0.3 * red) + (0.59 * green) + (0.11 * blue);
       data[i] = data[i+1]= data[i+2]=gray;
     }
-    console.log(info.data);
 
     // Turn the image into a canvas
     const canvas = createCanvas(width, height);
