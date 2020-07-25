@@ -6,12 +6,16 @@
     "start": "node ./bin/www"
   },
   "dependencies": {
+    "canvas": "^2.6.1",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
     "express": "~4.16.1",
+    "get-image-data": "^5.0.0",
     "handtrackjs": "0.0.13",
     "http-errors": "~1.6.3",
     "jade": "~1.11.0",
-    "morgan": "~1.9.1"
+    "jimp": "^0.14.0",
+    "morgan": "~1.9.1",
+    "node-fetch": "^2.6.0"
   }
 }
