@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var handTrack = require('../handtrackjs/src/index.js');
 var image = require('get-image-data')
+var canvasBase64 = require('canvas-base64')
 const { Image, createCanvas } = require('canvas');
 let model;
 const SRC_URL = './img_src';
@@ -25,24 +26,29 @@ handTrack.load(modelParams).then(m => {
 });
 
 router.get('/test', (req, res, next) => {
-  console.log(JSON.stringify(req.body));
+  var img = new Image();
+  img.onload = function () {
+    console.log(img);
+  };
+  img.src = req.body["image"]; 
+  console.log(imageData.info);
   res.send('ayyy lmaoooo');
 });
 
-router.get('/generate_images', function(req, res, next) {
+router.get('/generate_images', function (req, res, next) {
   let files = fs.readdirSync(SRC_URL);
   let numOfFiles = files.length;
 
   // for each images, convert it to grayscale
-  for(let i = 0; i < numOfFiles; i++){
-    let folder =  files[i];
-    if (!fs.existsSync(DST_URL+'/'+folder)){
-      fs.mkdirSync(DST_URL+'/'+folder);
+  for (let i = 0; i < numOfFiles; i++) {
+    let folder = files[i];
+    if (!fs.existsSync(DST_URL + '/' + folder)) {
+      fs.mkdirSync(DST_URL + '/' + folder);
     }
     let images = fs.readdirSync(SRC_URL + '/' + folder);
-    for(let j = 0; j < images.length; j++){
+    for (let j = 0; j < images.length; j++) {
       let img = images[j];
-      center_image(SRC_URL + '/' + folder + '/'+ img, (buffer) => {
+      center_image(SRC_URL + '/' + folder + '/' + img, (buffer) => {
         fs.writeFileSync(DST_URL + '/' + folder + '/' + img, buffer);
       });
     }
@@ -51,7 +57,7 @@ router.get('/generate_images', function(req, res, next) {
 });
 
 /* GET home page. */
-router.get('/gesture', function(req, res, next) {
+router.get('/gesture', function (req, res, next) {
 
   let test = SRC_URL + '/ram/ram3.jpg';
   center_image(test, (buffer) => {
@@ -60,9 +66,9 @@ router.get('/gesture', function(req, res, next) {
 
 });
 
-function center_image(url, callback){
+function center_image(url, callback) {
   image(url, function (err, info) {
-    if(err){
+    if (err) {
       console.log(err);
       return;
     }
@@ -77,38 +83,38 @@ function center_image(url, callback){
     img.onload = () => {
       console.log("image loaded.");
 
-      ctx.scale(SIZE/width, SIZE/width);
+      ctx.scale(SIZE / width, SIZE / width);
       ctx.drawImage(img, 0, 0);
 
       model.detect(canvas).then(predictions => {
         console.log('Predictions: ', predictions);
 
-        let maxX = 0, maxY=0, minX=canvas.width, minY=canvas.height;
-        for(let i = 0; i < predictions.length; i++){
+        let maxX = 0, maxY = 0, minX = canvas.width, minY = canvas.height;
+        for (let i = 0; i < predictions.length; i++) {
           let prediction = predictions[i]['bbox'];
-          if(prediction[0] < minX)
-            minX=prediction[0]
-          if(prediction[1] < minY)
-            minY=prediction[1]
-          if(prediction[2] + prediction[0] > maxX)
-            maxX=prediction[2] + prediction[0]
-          if(prediction[3] + prediction[1] > maxY)
-            maxY=prediction[3] + prediction[1]
+          if (prediction[0] < minX)
+            minX = prediction[0]
+          if (prediction[1] < minY)
+            minY = prediction[1]
+          if (prediction[2] + prediction[0] > maxX)
+            maxX = prediction[2] + prediction[0]
+          if (prediction[3] + prediction[1] > maxY)
+            maxY = prediction[3] + prediction[1]
         }
 
         let new_width = maxX - minX;
         let new_height = maxY - minY;
         let max_dim = Math.max(new_width, new_height) + 60;
-        let offsetX = minX - (max_dim - new_width)/2;
-        let offsetY = minY - (max_dim - new_height)/2;
+        let offsetX = minX - (max_dim - new_width) / 2;
+        let offsetY = minY - (max_dim - new_height) / 2;
         new_width = new_height = max_dim;
 
         // Convert into grayscale canvas
         var imgPixels = ctx.getImageData(offsetX, offsetY, new_width, new_height);
-        for(var y = 0; y < canvas.height; y++){
-          for(var x = 0; x < canvas.width; x++){
+        for (var y = 0; y < canvas.height; y++) {
+          for (var x = 0; x < canvas.width; x++) {
             var i = (y * 4) * canvas.width + x * 4;
-            var avg = (0.3 * imgPixels.data[i]) + (0.59*imgPixels.data[i + 1]) + (0.11*imgPixels.data[i + 2]);
+            var avg = (0.3 * imgPixels.data[i]) + (0.59 * imgPixels.data[i + 1]) + (0.11 * imgPixels.data[i + 2]);
             imgPixels.data[i] = avg;
             imgPixels.data[i + 1] = avg;
             imgPixels.data[i + 2] = avg;
