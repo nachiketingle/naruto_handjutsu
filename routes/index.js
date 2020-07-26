@@ -29,6 +29,7 @@ router.post('/test', (req, res, next) => {
   let buff = new Buffer(b64, 'base64');
   console.log(buff);
   fs.writeFileSync('test.jpg', b64, 'base64');
+  fs.writeFileSync("b64.txt", b64);
   var img = new Image();
   img.onload = function () {
     console.log("IMAGE LOADED!");
