@@ -24,6 +24,10 @@ handTrack.load(modelParams).then(m => {
   model = m;
 });
 
+router.get('/test', (req, res, next) => {
+  res.send('ayyy lmaoooo');
+});
+
 router.get('/generate_images', function(req, res, next) {
   let files = fs.readdirSync(SRC_URL);
   let numOfFiles = files.length;
