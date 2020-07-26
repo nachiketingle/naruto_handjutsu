@@ -25,6 +25,7 @@ handTrack.load(modelParams).then(m => {
 });
 
 router.get('/test', (req, res, next) => {
+  console.log(JSON.stringify(req.body));
   res.send('ayyy lmaoooo');
 });
 
