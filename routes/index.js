@@ -25,7 +25,7 @@ handTrack.load(modelParams).then(m => {
 /* GET home page. */
 router.get('/gesture', function(req, res, next) {
 
-  let test = './public/images/ninja1.png';
+  let test = './public/images/dog0.jpg';
 
   image(test, function (err, info) {
     if(err){
@@ -66,8 +66,10 @@ router.get('/gesture', function(req, res, next) {
         let coords = predictions[0]['bbox']; // this is an array in format [minx, miny, maxx-minx, maxy-miny]
         let new_width = maxX - minX + padding_w * 2;
         let new_height = maxY - minY + padding_h * 2;
-        let offsetX = minX - padding_w;
-        let offsetY = minY - padding_h;
+        let max_dim = Math.max(new_width, new_height);
+        let offsetX = minX - padding_w - (max_dim - new_width)/2;
+        let offsetY = minY - padding_h - (max_dim - new_height)/2;
+        new_width = new_height = max_dim;
 
         // Convert into grayscale canvas
         var imgPixels = ctx.getImageData(offsetX, offsetY, new_width, new_height);
