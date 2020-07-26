@@ -37,17 +37,15 @@ public class ScreenCapturer : MonoBehaviour
         {
             if (image.IsAvailable)
             {
-
-
                 // Adjust buffer size if necessary.
-                int bufferSize = image.Width * image.Height;
+                int bufferSize = image.UVRowStride * image.Height;
                 if (bufferSize != s_ImageBufferSize || s_ImageBuffer.Length == 0)
                 {
                     s_ImageBufferSize = bufferSize;
                     s_ImageBuffer = new byte[bufferSize];
                 }
 
-                this.m_TextureToRender = new Texture2D(image.Width, image.Height, TextureFormat.RGBA32, false, false);
+                this.m_TextureToRender = new Texture2D(image.UVRowStride, image.Height, TextureFormat.RGBA32, false, false);
 
                 // Move raw data into managed buffer.
                 System.Runtime.InteropServices.Marshal.Copy(image.Y, s_ImageBuffer, 0, bufferSize);
@@ -58,7 +56,7 @@ public class ScreenCapturer : MonoBehaviour
                 var encodedJpg = m_TextureToRender.EncodeToJPG();
                 string base64encoded = Convert.ToBase64String(encodedJpg);
 
-                StartCoroutine(SendData(image.Width, image.Height, base64encoded));
+                StartCoroutine(SendData(image.UVRowStride, image.Height, base64encoded));
 
                 // TODO: Send s_ImageBuffer, UVRowStride, and Height to back end
                 // debugText.text = bufferSize.ToString();
