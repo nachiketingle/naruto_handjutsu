@@ -2,7 +2,6 @@ var express = require('express');
 var router = express.Router();
 var handTrack = require('../handtrackjs/src/index.js');
 var image = require('get-image-data')
-var canvasBase64 = require('canvas-base64')
 const { Image, createCanvas } = require('canvas');
 let model;
 const SRC_URL = './img_src';
@@ -25,13 +24,17 @@ handTrack.load(modelParams).then(m => {
   model = m;
 });
 
-router.get('/test', (req, res, next) => {
+router.post('/test', (req, res, next) => {
+  let b64 = req.body["image"];
+  let buff = new Buffer(b64, 'base64');
+  console.log(buff);
+  fs.writeFileSync('test.jpg', buff);
   var img = new Image();
   img.onload = function () {
+    console.log("IMAGE LOADED!");
     console.log(img);
   };
-  img.src = req.body["image"]; 
-  console.log(imageData.info);
+  img.src = b64; 
   res.send('ayyy lmaoooo');
 });
 
