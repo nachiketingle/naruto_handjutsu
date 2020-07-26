@@ -4,6 +4,9 @@ var handTrack = require('../handtrackjs/src/index.js');
 var image = require('get-image-data')
 const { Image, createCanvas } = require('canvas');
 let model;
+const SRC_URL = './img_src';
+const DST_URL = './img_dst';
+const SIZE = 300;
 
 var fs = require('fs');
 
@@ -21,13 +24,34 @@ handTrack.load(modelParams).then(m => {
   model = m;
 });
 
+router.get('/generate_images', function(req, res, next) {
+  let files = fs.readdirSync(SRC_URL);
+  let numOfFiles = files.length;
+
+  // for each images, convert it to grayscale
+  for(let i = 0; i < numOfFiles; i++){
+    let img =  files[i];
+
+    center_image(SRC_URL + '/' + img, (buffer) => {
+      fs.writeFileSync(DST_URL + '/' + img, buffer)
+    });
+
+  }
+  res.send('Completed ' + numOfFiles + ' images');
+});
 
 /* GET home page. */
 router.get('/gesture', function(req, res, next) {
 
-  let test = './public/images/dog0.jpg';
+  let test = './public/images/ram0.jpg';
+  center_image(test, (buffer) => {
+    fs.writeFileSync(DST_URL + '/img.jpg', buffer)
+  });
 
-  image(test, function (err, info) {
+});
+
+function center_image(url, callback){
+  image(url, function (err, info) {
     if(err){
       console.log(err);
       return;
@@ -73,9 +97,9 @@ router.get('/gesture', function(req, res, next) {
 
         // Convert into grayscale canvas
         var imgPixels = ctx.getImageData(offsetX, offsetY, new_width, new_height);
-        for(var y = 0; y < new_height; y++){
-          for(var x = 0; x < new_width; x++){
-            var i = (y * 4) * new_width + x * 4;
+        for(var y = 0; y < height; y++){
+          for(var x = 0; x < width; x++){
+            var i = (y * 4) * width + x * 4;
             var avg = (0.3 * imgPixels.data[i]) + (0.59*imgPixels.data[i + 1]) + (0.11*imgPixels.data[i + 2]);
             imgPixels.data[i] = avg;
             imgPixels.data[i + 1] = avg;
@@ -84,20 +108,22 @@ router.get('/gesture', function(req, res, next) {
         }
 
         // Create a new canvas
-        const new_canvas = createCanvas(new_width, new_height);
-        const new_ctx = new_canvas.getContext('2d');
+        let new_canvas = createCanvas(new_width, new_height);
+        let new_ctx = new_canvas.getContext('2d');
         new_ctx.putImageData(imgPixels, 0, 0, 0, 0, new_width, new_height);
+        new_canvas.width = SIZE;
+        new_canvas.height = SIZE;
+
 
         // output photo for testing
         const buffer = new_canvas.toBuffer('image/png');
-        fs.writeFileSync('./image.png', buffer)
+        callback(buffer);
       });
 
     }
     img.onerror = err => { throw err }
-    img.src = test;
-
+    img.src = url;
   })
-});
+}
 
 module.exports = router;
